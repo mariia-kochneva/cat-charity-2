@@ -16,7 +16,6 @@ from app.schemas.donation import DonationCreate
 
 
 class InvestmentService:
-    """Сервис управления проектами, пожертвованиями и инвестициями."""
 
     def __init__(self, session: AsyncSession):
         self.session = session
