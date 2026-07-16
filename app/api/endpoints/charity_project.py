@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.utils import get_project_or_404
 from app.core.db import get_async_session
 from app.core.user import current_superuser
 from app.schemas.charity_project import (
@@ -8,13 +9,7 @@ from app.schemas.charity_project import (
     CharityProjectDB,
     CharityProjectUpdate,
 )
-from app.services.charity_project import (
-    create_project,
-    update_project,
-    delete_project,
-    get_all_projects,
-)
-from app.services.utils import get_project_or_404
+from app.services.investment_service import InvestmentService
 
 
 router = APIRouter(prefix="/charity_project", tags=["charity_projects"])
@@ -24,7 +19,8 @@ router = APIRouter(prefix="/charity_project", tags=["charity_projects"])
 async def get_all_charity_projects(
     session: AsyncSession = Depends(get_async_session),
 ):
-    return await get_all_projects(session)
+    service = InvestmentService(session)
+    return await service.get_all_projects()
 
 
 @router.post(
@@ -36,7 +32,8 @@ async def create_charity_project(
     project: CharityProjectCreate,
     session: AsyncSession = Depends(get_async_session),
 ):
-    return await create_project(project, session)
+    service = InvestmentService(session)
+    return await service.create_project(project)
 
 
 @router.patch(
@@ -50,7 +47,8 @@ async def update_charity_project(
     session: AsyncSession = Depends(get_async_session),
 ):
     project = await get_project_or_404(project_id, session)
-    return await update_project(project, obj_in, session)
+    service = InvestmentService(session)
+    return await service.update_project(project, obj_in)
 
 
 @router.delete(
@@ -63,4 +61,5 @@ async def delete_charity_project(
     session: AsyncSession = Depends(get_async_session),
 ):
     project = await get_project_or_404(project_id, session)
-    return await delete_project(project, session)
+    service = InvestmentService(session)
+    return await service.delete_project(project)
